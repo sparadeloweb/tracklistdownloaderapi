@@ -1,5 +1,5 @@
-#!/usr/bin/env sh
-set -euo pipefail
+#!/bin/sh
+set -eu
 
 # If a token is provided via env, write scdl.cfg for convenience
 if [ -n "${SCDL_AUTH_TOKEN-}" ]; then
