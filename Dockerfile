@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # System deps
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ffmpeg \
+    && apt-get install -y --no-install-recommends ffmpeg curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -23,9 +23,12 @@ COPY . .
 # Normalize line endings and ensure executable bit for entrypoint (Windows-safe)
 RUN sed -i 's/\r$//' docker-entrypoint.sh && chmod +x docker-entrypoint.sh
 
-EXPOSE 8420
+# Healthcheck with proper curl path
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -fsS http://127.0.0.1:${PORT:-8420}/ || exit 1
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 CMD curl -fsS http://127.0.0.1:${PORT:-8420}/ || exit 1
+# Expose a default port (actual port is controlled by $PORT)
+EXPOSE 8420
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
